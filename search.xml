@@ -4,13 +4,50 @@
   
     
     <entry>
+      <title>SSRF DNS Rebinding</title>
+      <link href="/2025/07/01/SSRF-DNS-Rebinding/"/>
+      <url>/2025/07/01/SSRF-DNS-Rebinding/</url>
+      
+        <content type="html"><![CDATA[<p>DNS 重绑定是一种特定的技术，通常用于绕过 <strong>同源策略（Same-Origin Policy）</strong>。攻击者会通过操控 DNS 解析过程，伪装自己的域名，使其解析到受害者的内网 IP（例如 <strong>127.0.0.1</strong> 或 <strong>192.168.x.x</strong>）或云服务地址。这样，攻击者便能利用此技术攻击目标网络，执行多种漏洞利用方式。</p><h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><h3 id="同源策略"><a href="#同源策略" class="headerlink" title="同源策略"></a>同源策略</h3><h4 id="什么是同源策略？"><a href="#什么是同源策略？" class="headerlink" title="什么是同源策略？"></a>什么是同源策略？</h4><p>同源策略是Web浏览器的一种安全机制，用于限制来自不同源的文档或脚本如何与另一个源的资源进行交互。</p><p>如果非同源，那么在请求数据时，浏览器会在控制台中报一个异常，提示拒绝访问</p><h4 id="什么是源？"><a href="#什么是源？" class="headerlink" title="什么是源？"></a>什么是源？</h4><ol><li><p><strong>定义</strong></p><p>Web内容的源是由用于访问它的URL的方案（协议）、主机名（域名）和端口定义。即源由<strong>协议、域名和端口</strong>组成。</p></li><li><p><strong>组成</strong></p><ul><li><strong>协议（Protocol）：</strong> 资源使用的传输协议，如<code>http</code>、<code>https</code>、<code>ftp</code>等。</li><li><strong>域名（Domain Name）：</strong> 资源的网络域名。例如<code>example.com</code>、<code>other-example.com</code> 这包括了主域名以及可能存在的子域名，如<code>www.example.com</code>和<code>mail.example.com</code>会被视为不同的子域名，除非特别配置为同源。</li><li><strong>端口（Port）：</strong> 资源服务器监听的端口号，如<code>80</code>（http默认端口）或<code>443</code>（https默认端口）。如果端口号没有显式指定，则浏览器会使用协议的默认端口。</li></ul></li></ol><h4 id="何为同源？"><a href="#何为同源？" class="headerlink" title="何为同源？"></a>何为同源？</h4><p>只有当两个资源的协议、域名和端口都完全相同时，它们才被认为是同源的。</p><p>下方URL均与<code>http://example.com/dir/index.html</code>进行比较，例如：</p><table><thead><tr><th>URL</th><th>是否同源</th><th>原因</th></tr></thead><tbody><tr><td><code>http://example.com/dir2/index.html</code></td><td>同源</td><td>只有路径不同，协议、域名和端口均相同</td></tr><tr><td><code>https://example.com/dir/index.html</code></td><td>不同源</td><td>协议不同</td></tr><tr><td><code>http://example.com:81/dir/index.html</code></td><td>不同源</td><td>端口不同</td></tr><tr><td><code>http://example.org/dir/index.html</code></td><td>不同源</td><td>主机不同（域名不同）</td></tr></tbody></table><h3 id="DNS-TLL"><a href="#DNS-TLL" class="headerlink" title="DNS TLL"></a>DNS TLL</h3><p>TTL是英语Time-To-Live的简称，意思为一条域名解析记录在DNS服务器中的存留时间。当各地的DNS服务器接受到解析请求时，就会向域名指定的NS服务器发出解析请求从而获得解析记录；在获得这个记录之后，记录会在DNS服务器中保存一段时间，这段时间内如果再接到这个域名的解析请求，DNS服务器将不再向NS服务器发出请求，而是直接返回刚才获得的记录；而这个记录在DNS服务器上保留的时间，就是TTL值。</p><p><strong>即TTL的数值越小，解析记录在本地 DNS 服务器中保留时间越短。</strong></p><h2 id="DNS-Rebinding攻击原理"><a href="#DNS-Rebinding攻击原理" class="headerlink" title="DNS Rebinding攻击原理"></a>DNS Rebinding攻击原理</h2><p>我们都知道在网络攻击形式中，是可以通过恶意网页调用受害者本地资源来进行的。然而在上述所讲的同源策略约束下，从理论上来说浏览器打开的网页是无法访问运行在本地的恶意脚本，这能够保证我们上网过程中，本地资源得到安全保护。</p><p>但是在实际中，同源策略的约束可以被轻松绕过，比如说域名重新绑定攻击就可以轻松的绕过SOP（浏览器同源策略）。</p><p>当用户PC第一次访问网站<code>http://www.a.com</code>时，会先到公共的DNS服务器上去查询<code>www.a.com</code>这个域名对应的IP地址，再根据DNS服务器返回来的IP地址去访问目标网站。如图1所示：</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Web </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> SSRF </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>hello world</title>
       <link href="/2025/07/01/hello-world-1/"/>
       <url>/2025/07/01/hello-world-1/</url>
       
-        <content type="html"><![CDATA[]]></content>
+        <content type="html"><![CDATA[<h2 id="什么是DNS-Rebinding？"><a href="#什么是DNS-Rebinding？" class="headerlink" title="什么是DNS Rebinding？"></a>什么是DNS Rebinding？</h2>]]></content>
       
       
+      <categories>
+          
+          <category> test2 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> test </tag>
+            
+        </tags>
       
     </entry>
     

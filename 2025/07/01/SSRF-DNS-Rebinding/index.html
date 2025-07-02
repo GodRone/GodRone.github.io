@@ -14,8 +14,14 @@
 <meta property="og:description" content="DNS 重绑定是一种特定的技术，通常用于绕过 同源策略（Same-Origin Policy）。攻击者会通过操控 DNS 解析过程，伪装自己的域名，使其解析到受害者的内网 IP（例如 127.0.0.1 或 192.168.x.x）或云服务地址。这样，攻击者便能利用此技术攻击目标网络，执行多种漏洞利用方式。 前置知识同源策略什么是同源策略？同源策略是Web浏览器的一种安全机制，用于限制来自不同源的">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://godrone.github.io/images/SSRF-DNS-Rebinding/DNS1.png">
+<meta property="og:image" content="https://godrone.github.io/images/SSRF-DNS-Rebinding/DNS2.png">
+<meta property="og:image" content="https://godrone.github.io/images/SSRF-DNS-Rebinding/DNS3.png">
+<meta property="og:image" content="https://godrone.github.io/images/SSRF-DNS-Rebinding/image-20250702175646945.png">
+<meta property="og:image" content="https://godrone.github.io/images/SSRF-DNS-Rebinding/image-20250702175727066.png">
+<meta property="og:image" content="https://godrone.github.io/images/SSRF-DNS-Rebinding/image-20250702180132025.png">
+<meta property="og:image" content="https://godrone.github.io/images/SSRF-DNS-Rebinding/image-20250702180637747.png">
 <meta property="article:published_time" content="2025-07-01T08:13:51.000Z">
-<meta property="article:modified_time" content="2025-07-02T07:17:20.318Z">
+<meta property="article:modified_time" content="2025-07-02T10:22:50.248Z">
 <meta property="article:author" content="Rone">
 <meta property="article:tag" content="SSRF">
 <meta name="twitter:card" content="summary">
@@ -121,7 +127,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-number">1.</span> <span class="toc-text">前置知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5"><span class="toc-number">1.1.</span> <span class="toc-text">同源策略</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5%EF%BC%9F"><span class="toc-number">1.1.1.</span> <span class="toc-text">什么是同源策略？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%BA%90%EF%BC%9F"><span class="toc-number">1.1.2.</span> <span class="toc-text">什么是源？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%95%E4%B8%BA%E5%90%8C%E6%BA%90%EF%BC%9F"><span class="toc-number">1.1.3.</span> <span class="toc-text">何为同源？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DNS-TLL"><span class="toc-number">1.2.</span> <span class="toc-text">DNS TLL</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DNS-Rebinding%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">DNS Rebinding攻击原理</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-number">1.</span> <span class="toc-text">前置知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5"><span class="toc-number">1.1.</span> <span class="toc-text">同源策略</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5%EF%BC%9F"><span class="toc-number">1.1.1.</span> <span class="toc-text">什么是同源策略？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%BA%90%EF%BC%9F"><span class="toc-number">1.1.2.</span> <span class="toc-text">什么是源？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%95%E4%B8%BA%E5%90%8C%E6%BA%90%EF%BC%9F"><span class="toc-number">1.1.3.</span> <span class="toc-text">何为同源？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DNS-TLL"><span class="toc-number">1.2.</span> <span class="toc-text">DNS TLL</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DNS-Rebinding%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">DNS Rebinding攻击原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DNS-Rebinding%E6%8A%80%E6%9C%AF%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">DNS Rebinding技术实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF%E5%88%A9%E7%94%A8"><span class="toc-number">4.</span> <span class="toc-text">场景利用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%A0%E7%BB%9F%E7%9A%84SSRF%E8%BF%87%E6%BB%A4%E6%B5%81%E7%A8%8B"><span class="toc-number">5.</span> <span class="toc-text">传统的SSRF过滤流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%98%B2%E5%BE%A1%E6%8E%AA%E6%96%BD"><span class="toc-number">6.</span> <span class="toc-text">防御措施</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A1%A5%E5%85%85%E7%9F%A5%E8%AF%86"><span class="toc-number">7.</span> <span class="toc-text">补充知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#IP%E5%8F%8C%E9%87%8D%E7%BB%91%E5%AE%9A%E7%BB%95%E8%BF%87"><span class="toc-number">7.1.</span> <span class="toc-text">IP双重绑定绕过</span></a></li></ol></li></ol>
       </div>
     
   </span>
@@ -223,6 +229,51 @@
 <p>但是在实际中，同源策略的约束可以被轻松绕过，比如说域名重新绑定攻击就可以轻松的绕过SOP（浏览器同源策略）。</p>
 <p>当用户PC第一次访问网站<code>http://www.a.com</code>时，会先到公共的DNS服务器上去查询<code>www.a.com</code>这个域名对应的IP地址，再根据DNS服务器返回来的IP地址去访问目标网站。如图1所示：</p>
 <p><img src="/images/SSRF-DNS-Rebinding/DNS1.png" alt="DNS1"></p>
+<p>一般来说我们的操作系统默认能够将DNS返回来的这个IP地址信息保存60秒，而超过60秒后如果需要再次访问<code>www.a.com</code>这个域名则需要再一次向DNS服务器查询域名的IP地址。换句话说：如果这个时候我们访问的网站设置了60秒后会调用<code>http://www.a.com/dir/</code>这个url下面的资源，那么就需要我们的PC再一次向DNS服务器进行查询该域名对应的IP地址。</p>
+<p>假设用户访问的是一个钓鱼网站。当第一次访问该网站后过了60秒，由于该恶意网站设置了60秒后会自动调用<code>http://www.a.com/dir/</code>这个url下面的资源。用户PC访问前再次进行DNS查询的时候，DNS服务器返回的IP地址被修改为127.0.0.1，这个时候浏览器去调用<code>http://www.a.com/dir/</code>其实就变成了<code>http://127.0.0.1/dir/</code>的资源，也就是PC本地的资源。由于只是IP地址发生了改变，而浏览器实际上请求的地址还是<code>http://www.a.com/dir/</code>，所以这样其实还是符合浏览器的同源策略，但却非法的调用到了PC的本地资源。这样的行为被称之为<strong>域名重新绑定攻击（DNS ReBinding）</strong>。如图2所示：</p>
+<p><img src="/images/SSRF-DNS-Rebinding/DNS2.png" alt="DNS2"></p>
+<h2 id="DNS-Rebinding技术实现"><a href="#DNS-Rebinding技术实现" class="headerlink" title="DNS Rebinding技术实现"></a>DNS Rebinding技术实现</h2><p>在上述内容中，讲述了什么是域名重新绑定攻击，重点在于让DNS服务器能够在两次DNS查询中返回不同的IP地址，第一次返回的是真正的IP，第二次返回的则是攻击目标IP地址。那么如何实现公共DNS服务器下能够返回自定义信息呢？如图3所示：</p>
+<p><img src="/images/SSRF-DNS-Rebinding/DNS3.png" alt="DNS3"></p>
+<p>如图3所示，攻击者通过在公网上自己建立一台DNS服务器（2.2.2.2），地址为dns.b.com（与a.com不在同一域下），并在公共DNS上写入一条NS（域名）记录，将查询*.a,com的请求转发到攻击者自建的DNS服务器上面。</p>
+<p>这个时候由于是攻击者自己的DNS服务器，攻击者就可以自定义查询的结果，如第一次查询返回的IP地址设置为钓鱼网站<code>www.a.com</code>的IP，第二次查询返回的地址为要攻击的目标IP 127.0.0.1，以此来完成DNS ReBinding攻击。</p>
+<p>简单理一下这个过程：</p>
+<ol>
+<li>攻击者配置了一台DNS服务器用于解析某域名。</li>
+<li>每次请求后返回的解析结果不一样，分别是一个合法地址，一个是恶意地址。</li>
+<li>当服务器在第一次请求的时候返回合法地址，第二次请求时返回的是恶意地址。就可以绕过限制进行利用。</li>
+</ol>
+<h2 id="场景利用"><a href="#场景利用" class="headerlink" title="场景利用"></a>场景利用</h2><p>访问靶场，并填写相关信息</p>
+<p><img src="/images/SSRF-DNS-Rebinding/image-20250702175646945.png" alt="image-20250702175646945"></p>
+<p>提交后显示check url faild，说明有个check函数进行了校验过滤</p>
+<p><img src="/images/SSRF-DNS-Rebinding/image-20250702175727066.png" alt="image-20250702175727066"></p>
+<p>通过自建DNS服务器进行DNS重绑定（此处用网上平台进行利用），A绑定了自己的vps地址，B绑定了docker.ip</p>
+<p><img src="/images/SSRF-DNS-Rebinding/image-20250702180132025.png" alt="image-20250702180132025"></p>
+<p>在vps上起一个web服务，端口不为80与8080，写一个<code>index.php</code>页面用于跳转：(我这里用的端口为7777)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#index.php内容</span><br><span class="line">&lt;?php  </span><br><span class="line">	header(&quot;Location:http://127.0.0.1:8787/ssrf/flag&quot;);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<p>启用web服务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php -S 0.0.0.0 7777</span><br></pre></td></tr></table></figure>
+
+<p>因为服务器那边解析不一定会按照预想的来，因此需要不停的发包来碰撞。最终拿到flag如下：</p>
+<p><img src="/images/SSRF-DNS-Rebinding/image-20250702180637747.png" alt="image-20250702180637747"></p>
+<h2 id="传统的SSRF过滤流程"><a href="#传统的SSRF过滤流程" class="headerlink" title="传统的SSRF过滤流程"></a>传统的SSRF过滤流程</h2><ol>
+<li>获取输入的URL，从该URL中提取HOST，如果提取出来的是IP，那么直接跳到第三步；</li>
+<li>对该HOST进行DNS解析，获取到解析的IP；</li>
+<li>检测该IP是否是合法的，比如是否是私有IP等（是就直接终止流程）；</li>
+<li>如果IP检测为合法的，则进入CURL发包；</li>
+</ol>
+<p>从DNS解析的角度来看，这个过程一共有两次解析，第一次是<strong>对该host进行DNS解析</strong>，第二次是<strong>进入curl的阶段发包</strong>，这两次请求之间存在一个时间差，如果我们能够修改DNS地址在第一次请求的时候为合法地址，第二次请求时为恶意地址，就可以绕过这个检测了。</p>
+<h2 id="防御措施"><a href="#防御措施" class="headerlink" title="防御措施"></a>防御措施</h2><ul>
+<li>白名单验证：仅允许请求特定的受信任域名或 IP 地址。</li>
+<li>限制超时时间：限制服务器发起请求的超时时间，减少攻击窗口。</li>
+<li>检查 URL 格式：验证 URL 参数是否合法，避免构造恶意的 URL。</li>
+<li>安全配置：配置服务器和网络设备以限制出站连接，防止与恶意域名建立连接。</li>
+<li>使用随机 Token：为每个请求生成随机的 token，并在响应中验证该 token，防止请求被滥用。</li>
+</ul>
+<h2 id="补充知识"><a href="#补充知识" class="headerlink" title="补充知识"></a>补充知识</h2><h3 id="IP双重绑定绕过"><a href="#IP双重绑定绕过" class="headerlink" title="IP双重绑定绕过"></a>IP双重绑定绕过</h3><p>一般PHP在获取IP的时候通常是使用gethostname或者dns_get_record这俩函数。</p>
+<p>在一个域名下，同时绑定两个IP，如果使用的是gethostname来获取IP，则只会返回一个，返回哪个IP则是随机的。</p>
+<p>但是curl在访问这种域名的时候，由于绑定的是两个IP，curl会尝试访问每一个IP，最终返回有效的那个。比如我一个域名绑定了两个IP，一个是1.1.1.1（80端口关闭），一个是2.2.2.2（80端口开放），在curl这个域名的时候，会返回2.2.2.2的请求结果。</p>
+<p>如果SSRF过滤逻辑使用的是gethostname或者只获取了dns_get_record返回数组的第一个元素，那么就会存在被绕过的风险。</p>
 
   </div>
 </article>
@@ -256,7 +307,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-number">1.</span> <span class="toc-text">前置知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5"><span class="toc-number">1.1.</span> <span class="toc-text">同源策略</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5%EF%BC%9F"><span class="toc-number">1.1.1.</span> <span class="toc-text">什么是同源策略？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%BA%90%EF%BC%9F"><span class="toc-number">1.1.2.</span> <span class="toc-text">什么是源？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%95%E4%B8%BA%E5%90%8C%E6%BA%90%EF%BC%9F"><span class="toc-number">1.1.3.</span> <span class="toc-text">何为同源？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DNS-TLL"><span class="toc-number">1.2.</span> <span class="toc-text">DNS TLL</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DNS-Rebinding%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">DNS Rebinding攻击原理</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-number">1.</span> <span class="toc-text">前置知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5"><span class="toc-number">1.1.</span> <span class="toc-text">同源策略</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5%EF%BC%9F"><span class="toc-number">1.1.1.</span> <span class="toc-text">什么是同源策略？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%BA%90%EF%BC%9F"><span class="toc-number">1.1.2.</span> <span class="toc-text">什么是源？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%95%E4%B8%BA%E5%90%8C%E6%BA%90%EF%BC%9F"><span class="toc-number">1.1.3.</span> <span class="toc-text">何为同源？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DNS-TLL"><span class="toc-number">1.2.</span> <span class="toc-text">DNS TLL</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DNS-Rebinding%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">DNS Rebinding攻击原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DNS-Rebinding%E6%8A%80%E6%9C%AF%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">DNS Rebinding技术实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF%E5%88%A9%E7%94%A8"><span class="toc-number">4.</span> <span class="toc-text">场景利用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%A0%E7%BB%9F%E7%9A%84SSRF%E8%BF%87%E6%BB%A4%E6%B5%81%E7%A8%8B"><span class="toc-number">5.</span> <span class="toc-text">传统的SSRF过滤流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%98%B2%E5%BE%A1%E6%8E%AA%E6%96%BD"><span class="toc-number">6.</span> <span class="toc-text">防御措施</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A1%A5%E5%85%85%E7%9F%A5%E8%AF%86"><span class="toc-number">7.</span> <span class="toc-text">补充知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#IP%E5%8F%8C%E9%87%8D%E7%BB%91%E5%AE%9A%E7%BB%95%E8%BF%87"><span class="toc-number">7.1.</span> <span class="toc-text">IP双重绑定绕过</span></a></li></ol></li></ol>
       </div>
     
 

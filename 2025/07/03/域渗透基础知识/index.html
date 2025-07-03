@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="域什么是域？用来描述一种架构，和“工作组”相对应，由工作组升级而来的高级架构，域(Domain)是一个有安全边界的计算机集合（ 安全边界，意思是在两个域中，一个域中的用户无法访问另一个域中的资源）。可以简单的把域理解成升级版的“工作组”，相比工作组而言，它有一个更加严格的安全管理控制机制，如果你想访问域内的资源，就必须拥有一个合法的身份登陆到该域中。  工作组 工作组是局域网中的一个概念，他是长久">
+<meta property="og:type" content="article">
+<meta property="og:title" content="域渗透基础知识">
+<meta property="og:url" content="https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/index.html">
+<meta property="og:site_name" content="Rone&#39;s Blog">
+<meta property="og:description" content="域什么是域？用来描述一种架构，和“工作组”相对应，由工作组升级而来的高级架构，域(Domain)是一个有安全边界的计算机集合（ 安全边界，意思是在两个域中，一个域中的用户无法访问另一个域中的资源）。可以简单的把域理解成升级版的“工作组”，相比工作组而言，它有一个更加严格的安全管理控制机制，如果你想访问域内的资源，就必须拥有一个合法的身份登陆到该域中。  工作组 工作组是局域网中的一个概念，他是长久">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703110804642.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703113658704.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703115915385-17515152165301.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703120858490.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703143946115.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703154020809.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703154739063.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703155226059.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703155149033.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703160216979.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703160741922.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703162042491.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703164441212.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703174452721.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703174729320.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703174858328.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703174947489.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20231116202508913-17515529769863.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20231116203936628.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20231116211502361.png">
+<meta property="og:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20231116211651346.png">
+<meta property="article:published_time" content="2025-07-03T02:17:49.000Z">
+<meta property="article:modified_time" content="2025-07-03T14:38:28.573Z">
+<meta property="article:author" content="Rone">
+<meta property="article:tag" content="域渗透">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://godrone.github.io/images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703110804642.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>域渗透基础知识</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">主页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/friends/">友链</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于我</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/07/01/SSRF-DNS-Rebinding/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&text=域渗透基础知识"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=域渗透基础知识"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&is_video=false&description=域渗透基础知识"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=域渗透基础知识&body=Check out this article: https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=域渗透基础知识"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=域渗透基础知识"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=域渗透基础知识"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=域渗透基础知识"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&name=域渗透基础知识&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&t=域渗透基础知识"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F"><span class="toc-number">1.</span> <span class="toc-text">域</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%9F%9F%EF%BC%9F"><span class="toc-number">1.1.</span> <span class="toc-text">什么是域？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E7%9A%84%E5%87%A0%E7%A7%8D%E7%8E%AF%E5%A2%83"><span class="toc-number">1.2.</span> <span class="toc-text">域的几种环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E5%90%8D%E6%9C%8D%E5%8A%A1%E5%99%A8%EF%BC%88DNS%EF%BC%89"><span class="toc-number">1.3.</span> <span class="toc-text">域名服务器（DNS）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B4%BB%E5%8A%A8%E7%9B%AE%E5%BD%95-AD"><span class="toc-number">1.4.</span> <span class="toc-text">活动目录( AD)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E6%8E%A7%E5%88%B6%E5%99%A8%EF%BC%88DC%EF%BC%89"><span class="toc-number">1.5.</span> <span class="toc-text">域控制器（DC）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F%E7%9A%84%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">域的搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E6%8E%A7%E6%90%AD%E5%BB%BA"><span class="toc-number">2.1.</span> <span class="toc-text">域控搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8A%A0%E5%85%A5%E5%9F%9F"><span class="toc-number">2.2.</span> <span class="toc-text">计算机加入域</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">3.</span> <span class="toc-text">域信息收集</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%8F%91%E7%8E%B0"><span class="toc-number">3.1.</span> <span class="toc-text">主机发现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F%E6%B8%97%E9%80%8F%E6%80%9D%E8%B7%AF"><span class="toc-number">4.</span> <span class="toc-text">域渗透思路</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        域渗透基础知识
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Rone</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-07-03T02:17:49.000Z" class="dt-published" itemprop="datePublished">2025-07-03</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/">内网渗透</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/%E5%9F%9F%E6%B8%97%E9%80%8F/" rel="tag">域渗透</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="域"><a href="#域" class="headerlink" title="域"></a>域</h2><h3 id="什么是域？"><a href="#什么是域？" class="headerlink" title="什么是域？"></a>什么是域？</h3><p>用来描述一种架构，和“工作组”相对应，由工作组升级而来的高级架构，域(Domain)是一个有安全边界的计算机集合（ 安全边界，意思是在两个域中，一个域中的用户无法访问另一个域中的资源）。可以简单的把域理解成升级版的“工作组”，相比工作组而言，它有一个更加严格的安全管理控制机制，如果你想访问域内的资源，就必须拥有一个合法的身份登陆到该域中。</p>
+<ul>
+<li><p>工作组</p>
+<p>工作组是局域网中的一个概念，他是长久的资源管理模式。默认情况下使用工作组方式进行资源管理，将不同的 computer 按照不同的要求分类到不同的组。</p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703110804642.png" alt="image-20250703110804642"></p>
+</li>
+</ul>
+<h3 id="域的几种环境"><a href="#域的几种环境" class="headerlink" title="域的几种环境"></a>域的几种环境</h3><ul>
+<li><p><strong>单域</strong></p>
+<p>通常一个小公司，一般一个域就可以，一个域内，要至少两台域服务器，一台作为域控制器，另一台当备份。 </p>
+<p>活动目录的数据库【包括用户的账号信息】是存储在域控制器中，若没备份，瘫痪了不能正常使用了。</p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703113658704.png" alt="image-20250703113658704"></p>
+</li>
+<li><p><strong>父域和子域</strong></p>
+<p>出于管理及其他需求，需要在网络中划分多个域。第一个域称为父域，各分部的域称为该域的子域。例如大公司的各个分公司位于不同的地点，就需要使用父域及子域。如果把不同地点的分公司放在同一个域内，那么它们之间在信息交互(包括同步、复制等)上花费的时间就会比较长，占用的带宽也会比较大(在同一个域内，信息交互的条目是很多的，而且不会压缩;；在不同的域之间，信息交互的条日相对较少， 而且可以压缩)。这样处理有一个好处，就是分公司可以通过自己的域来管理自己的资源。还有一种情况是出于安全策略的考虑(每个域都有自己的安全策略)例如，一个公司的财务部希望使用特定的安全策略(包括账号密码策略等)、那么可以将财务部作为一个子域来单独管理。</p>
+</li>
+<li><p><strong>域树</strong></p>
+<p>域树(Tree)是多个域通过建立信任关系组成的集合。一个域管理员只能管理本域，不能访问或者管理其他域。如果两个域之间需要互相访问，则需要建立信任关系，信任关系是连接不同域的桥梁。域树内的父域与子域，不但可以按照需要互相管理、还可以跨网络分配文件和打印机等设备及资源，从而在不同的域之间实现网络资源的共享与管理、通信及数据传输。<br>在一个域树中，父域可以包含多个子域。子域是相对父域来说的，指的是域名中的每一个段。 各子域之间用点号隔开，一个”.”代表一个层次。放在域名最后的子域称为最高级子域或一级域，它前面的子域称为二级域。</p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703115915385-17515152165301.png" alt="image-20250703115915385"></p>
+</li>
+<li><p><strong>域森林</strong></p>
+<p>域森林( Forest)是指多个域树通过建立信任关系组成的集合。例如，在一个公司兼并场景中某公司使用域树 abc.com，被兼并的公司本来有自己的域树 abc.net，域树abc.net无法挂在域树abc.com下。</p>
+<p>所以，域树abc.com与域树 abc.net之间需要通过建立信任关系来构成域森林，同一个林中，林根域与其他树根域自动建立双向信任关系信任关系可传递。因此，在林中，只要拥有其中一个域内的权限，就可以访问其他林中其他域的资源。</p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703120858490.png" alt="image-20250703120858490"></p>
+</li>
+</ul>
+<h3 id="域名服务器（DNS）"><a href="#域名服务器（DNS）" class="headerlink" title="域名服务器（DNS）"></a>域名服务器（DNS）</h3><p>域名服务器( Domain Name Server,DNS)是指用于实现域名( Domain Name)和与之相对的IP地址(IP address)转换的服务器。从对域树的介绍中可以看出,域树中的域名和DNS域名非常相似。而实际上,因为域中的计算机是使用DNS来定位域控制器、服务器及其他计算机、网络服务的,所以域的名字就是DNS域的名字。在内网渗透测试中,大都是通过寻找DNS服务器 来确定域控制器的位置的(DNS服务器和域控制器通常配置在同一机器上)。</p>
+<h3 id="活动目录-AD"><a href="#活动目录-AD" class="headerlink" title="活动目录( AD)"></a>活动目录( AD)</h3><p><code>Active Directory</code>简单来说，就是<code>Microsfot</code>提供的一项功能服务，它充当集中存储库并存储与<code>Active Directory</code>用户、计算机、服务器和组织内的其他资源等对象相关的所有数据，它使系统管理员的管理变得容易。但它的主要功能是提供一种在域环境中对用户和机器进行身份验证的方法。使用<code>Active Directory</code>，可以远程管理用户、工作站及其权限等资源。因此，它是一个可从网络上的任何地方访问的单一管理界面。它主要是<code>Microsoft Windows</code>的一项功能，但其他操作系统也可以加入其中，例如你可以在<code>Active Directory</code>环境中加入<code>Linux</code>主机。</p>
+<p>活动目录AD是域环境中提供目录服务的组件。在活动目录中，所有的网络对象信息以一种结构化的数据存储方式来保存，使得管理员和用户能够轻松地查找和使用这些信息。活动目录以这种结构化的数据存储方式作为基础，对目录信息进行合乎逻辑的分层组织。活动目录存储着有关网络对象（如用户、组、计算机、共享资源、打印机和联系人等）的信息。目录服务是帮助用户快速准确从目录中查找到他所需要的信息的服务。安装有AD活动目录的服务器就是域控DC。</p>
+<p>如果将企业的内网看成是一本字典，那么内网里的资源就是字典的内容， 活动目录就相当于字典的索引。即活动目录存储的是网络中所有资源的快捷方式，用户通过寻找快捷方式而定位资源。</p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703143946115.png" alt="image-20250703143946115"></p>
+<h3 id="域控制器（DC）"><a href="#域控制器（DC）" class="headerlink" title="域控制器（DC）"></a>域控制器（DC）</h3><p>在域架构中域控是用来管理所有客户端的服务器，它负责每一台联入的电脑和用户的验证工作，域内电脑如果想互相访问首先都得经过它的审核。域控是域架构的核心，每个域控制器上都包含了AD活动目录数据库。一个域环境可以有多台域控，每一台域控的地位几乎是平等的，他们各自存储着一份相同的活动目录数据库。当你在任何一台域控制器内添加一个用户账号或其他信息后，此信息默认会同步到其他域控的活动目录数据库中。多个域控的好处就是，当其中有域控出现故障了，仍然能够由其他域控来提供服务，除非所有域控都出现故障。当域中的一台计算机安装了AD活动目录后，它就成了域控DC了。域控制器在进行活动目录数据库复制时，分为两种复制模式：</p>
+<p><strong>多主机复制模式</strong>(Multi-master replication model) ：活动目录数据库内的大部分数据是利用此模式进行复制的。在此模式下，你可以直接更新任何一台域控的活动目录对象，之后这个更新过的对象会被自动复制到其他域控制器。<br><strong>单主机复制模式</strong> (Single-master replication model)：活动目录数据库内的少部分数据是采用此模式进行复制的。在此模式下，当你提出修改对象数据的请求时，会由其中一台域控负责接收与处理此请求，也就是说该对象是先在该域控被更新，再由该域控复制给其他域控。</p>
+<p>简而言之，<code>Active Directory</code>域控制器承载对域中的身份验证请求进行响应的服务。它对网络上的用户访问进行身份验证和验证。当用户和计算机帐户登录到网络时，他们向域控制器进行身份验证，域控制器验证他们的信息(如用户名、密码)，然后决定是允许还是拒绝这些用户的访问。域控制器是攻击者的重要服务器和主要目标，因为它持有<code>Active Directory</code>环境的密钥。每个域至少有一个域控制器(也可以有其他域控制器)。</p>
+<h2 id="域的搭建"><a href="#域的搭建" class="headerlink" title="域的搭建"></a>域的搭建</h2><h3 id="域控搭建"><a href="#域控搭建" class="headerlink" title="域控搭建"></a>域控搭建</h3><p>这里使用Vmare建立域环境</p>
+<p>名称					IP</p>
+<p>12server1		  192.168.31.161</p>
+<p>12server2		  192.168.31.162</p>
+<p>使用12server1计算机建立域</p>
+<p>选择 Active Directory 域服务 点击下一步 点击安装。</p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703154020809.png" alt="image-20250703154020809"></p>
+<p>安装完成后，点击“将此服务器提升为域控制器”。</p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703154739063.png" alt="image-20250703154739063"></p>
+<p>新建林hacker.test。</p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703155226059.png" alt="image-20250703155226059"></p>
+<p>接下来设置完密码后，一直点击下一步直到安装成功即可。</p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703155149033.png" alt="image-20250703155149033"></p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703160216979.png" alt="image-20250703160216979"></p>
+<p>安装成功后会自动重启服务器 输入设置的密码即可登录</p>
+<p>目前就已成功在域环境下了</p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703160741922.png" alt="image-20250703160741922"></p>
+<h3 id="计算机加入域"><a href="#计算机加入域" class="headerlink" title="计算机加入域"></a>计算机加入域</h3><p>在 12server1的AD新建一个普通用户 test 密码Aa123456</p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703162042491.png" alt="image-20250703162042491"></p>
+<p>设置成功后 12server2的dns更改为12server1的IP：192.168.31.161</p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703164441212.png" alt="image-20250703164441212"></p>
+<p>选择我的电脑，设置隶属域hacker.test，系统提示输入账号和密码，输入刚才的 test Aa123456，确定重启即可。</p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703174452721.png" alt="image-20250703174452721"></p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703174729320.png" alt="image-20250703174729320"></p>
+<p>重启后，登录域用户。</p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703174858328.png" alt="image-20250703174858328"></p>
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20250703174947489.png" alt="image-20250703174947489"></p>
+<p>至此域环境已经搭建成功。</p>
+<h2 id="域信息收集"><a href="#域信息收集" class="headerlink" title="域信息收集"></a>域信息收集</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">query user || qwinsta 	#查看当前在线用户，qwinsta查看当前会话用户，包含登录用户</span><br><span class="line">net user 				#查看本机用户</span><br><span class="line">net user /domain 		#查看域用户</span><br><span class="line">ipconfig		#查看本机IP信息</span><br><span class="line">systeminfo		#查看系统详细信息</span><br><span class="line">tasklist /svc	#列出进程及对应服务</span><br><span class="line">tasklist /S &lt;ip&gt; /U domain\username /P &lt;password&gt; /V 查看远程计算机tasklist</span><br><span class="line">whoami /all 	#查看当前身份详细权限（包括 SID、UAC 等）</span><br><span class="line">net sessoin 	#查看远程连接会话（需管理员权限）</span><br><span class="line">net share 		#查看本机共享目录</span><br><span class="line">cmdkey /l		#查看保存登陆凭证</span><br><span class="line">netsh firewall show config		#查看防火墙配置</span><br><span class="line">schtasks /query /fo LIST /v		#查询定时任务</span><br><span class="line">net localgroup administrators &amp;&amp; whoami 	#查看当前是否属于管理员组	</span><br><span class="line">netstat -ano		#查看所有网络连接及对应PID</span><br><span class="line">dir /s *.exe 		#查找当前及子目录下所有.exe 文件</span><br><span class="line">spn –l administrator 	#查看指定用户注册的 SPN（需安装 setspn.exe 工具）</span><br><span class="line">set 			#查看所有环境变量</span><br><span class="line">arp -a				#查看arp缓存</span><br><span class="line">net view &amp; net group &quot;domain computers&quot; /domain 	#第一个是基于 SMB 网络发现，第二个是真正的域组清单</span><br><span class="line">net view /domain 		#查看网络中所有域</span><br><span class="line">net view \\\\dc 		#查看指定主机（如域控）共享文件</span><br><span class="line">net group /domain 		#查看域中的所有组</span><br><span class="line">net group &quot;domain admins&quot; /domain 		#查看域管理员成员</span><br><span class="line">net localgroup administrators /domain 		#查看本地管理员组成员</span><br><span class="line">net group &quot;domain controllers&quot; /domain 		#查看域控服务器成员</span><br><span class="line">net time /domain		# 获取域控时间（可间接得知IP）</span><br><span class="line">net config workstation 	#查看计算机名、用户、域信息</span><br><span class="line">net use \\\\域控(如 pc.xx.com)  /user:xxx.com\username password #相当于这个帐号登录域内主机，可访问资源</span><br><span class="line">nltest /dclist:&lt;domain&gt; 	#查看域中所有域控</span><br><span class="line">nltest /dsgetdc:&lt;domain&gt;：	#获取当前最近的域控信息</span><br><span class="line">echo %logonserver% 	#查看认证时联系的域控</span><br><span class="line">dsquery server  	#查找AD中的服务器（需 RSAT 工具）查找目录中的 AD DC/LDS 实例</span><br><span class="line">dsquery user		#查找AD中的用户	</span><br><span class="line">dsquery computer 	#查找AD中的计算机</span><br><span class="line">wmic useraccount get /all	#获取域内用户详细信息</span><br></pre></td></tr></table></figure>
+
+<h3 id="主机发现"><a href="#主机发现" class="headerlink" title="主机发现"></a>主机发现</h3><p><strong>bat命令主机发现</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">for /l %i in (1,1,255) do @ping 192.168.0.%i -w 1 -n 1|find /i &quot;ttl=&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20231116202508913-17515529769863.png" alt="image-20231116202508913"></p>
+<p><strong>用 PowerShell 实现基本的端口扫描功能。</strong> </p>
+<p>针对单个 IP 的多个端口的扫描：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1..1024 | % &#123;echo ((new-object Net.Sockets.TcpClient).Connect(&quot;192.168.107.138&quot;,$_)) &quot;Port $_ is open!&quot;&#125; 2&gt;$null</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20231116203936628.png" alt="image-20231116203936628"></p>
+<p>针对某 IP 段中单个端口的扫描：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">134..138 | % &#123; $a = $_; 1..1024 | % &#123;echo ((new-object Net.Sockets.TcpClient).Connect(&quot;192.168.107.$a&quot;,$_)) &quot;Port $_ is open!&quot;&#125; 2&gt;$null&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20231116211502361.png" alt="image-20231116211502361"></p>
+<p>针对某 IP 段 &amp; 多个端口的扫描器</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">foreach ($ip in 134..138) &#123;Test-NetConnection -Port 80 -InformationLevel &quot;Detailed&quot; 192.168.107.$ip&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/image-20231116211651346.png" alt="image-20231116211651346"></p>
+<p><strong>基于 MSF 的内网主机探测</strong></p>
+<p>使用 msf 进行反弹 shell 进行内网渗透时，通过 msf 自带的扫描模块进行快速扫描。  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">主机存活探测：</span><br><span class="line">auxiliary/scanner/discovery/arp_sweep 	ARP 扫描 </span><br><span class="line">auxiliary/scanner/discovery/udp_sweep 	UDP 扫描 </span><br><span class="line">auxiliary/scanner/netbios/nbname		 NETBIOS 扫描 </span><br><span class="line">auxiliary/scanner/snmp/snmp_enum	 	SNMP 扫描 </span><br><span class="line">auxiliary/scanner/smb/smb_version 		SMB 扫描 </span><br><span class="line">端口扫描： </span><br><span class="line">auxiliary/scanner/portscan/ack 			TCP ACK 端口扫描</span><br><span class="line">auxiliary/scanner/portscan/ftpbounce 	FTP bounce 端口扫描</span><br><span class="line">auxiliary/scanner/portscan/syn 			SYN 端口扫描 </span><br><span class="line">auxiliary/scanner/portscan/tcp 			TCP 端口扫描 </span><br><span class="line">auxiliary/scanner/portscan/xmas 		TCP XMas 端口扫描</span><br></pre></td></tr></table></figure>
+
+<h2 id="域渗透思路"><a href="#域渗透思路" class="headerlink" title="域渗透思路"></a>域渗透思路</h2><p>通过域成员主机，定位出域控制器 IP 及域管理员账号，利用域成员主机作为跳板，扩大渗透范围，利用域管理员可以登陆域中任何成员主机的特性，定位出域管理员登陆过的主机 IP，设法从域成员主机内存中 dump 出域管理员密码，进而拿下域控制器渗透整个内网。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">主页</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/categories/">分类</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a href="/friends/">友链</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+          <li><a href="/about/">关于我</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F"><span class="toc-number">1.</span> <span class="toc-text">域</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%9F%9F%EF%BC%9F"><span class="toc-number">1.1.</span> <span class="toc-text">什么是域？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E7%9A%84%E5%87%A0%E7%A7%8D%E7%8E%AF%E5%A2%83"><span class="toc-number">1.2.</span> <span class="toc-text">域的几种环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E5%90%8D%E6%9C%8D%E5%8A%A1%E5%99%A8%EF%BC%88DNS%EF%BC%89"><span class="toc-number">1.3.</span> <span class="toc-text">域名服务器（DNS）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B4%BB%E5%8A%A8%E7%9B%AE%E5%BD%95-AD"><span class="toc-number">1.4.</span> <span class="toc-text">活动目录( AD)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E6%8E%A7%E5%88%B6%E5%99%A8%EF%BC%88DC%EF%BC%89"><span class="toc-number">1.5.</span> <span class="toc-text">域控制器（DC）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F%E7%9A%84%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">域的搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E6%8E%A7%E6%90%AD%E5%BB%BA"><span class="toc-number">2.1.</span> <span class="toc-text">域控搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8A%A0%E5%85%A5%E5%9F%9F"><span class="toc-number">2.2.</span> <span class="toc-text">计算机加入域</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">3.</span> <span class="toc-text">域信息收集</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%8F%91%E7%8E%B0"><span class="toc-number">3.1.</span> <span class="toc-text">主机发现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F%E6%B8%97%E9%80%8F%E6%80%9D%E8%B7%AF"><span class="toc-number">4.</span> <span class="toc-text">域渗透思路</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&text=域渗透基础知识"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=域渗透基础知识"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&is_video=false&description=域渗透基础知识"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=域渗透基础知识&body=Check out this article: https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=域渗透基础知识"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=域渗透基础知识"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=域渗透基础知识"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=域渗透基础知识"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&name=域渗透基础知识&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://godrone.github.io/2025/07/03/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&t=域渗透基础知识"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2019-2025
+    Rone
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">主页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/friends/">友链</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于我</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
